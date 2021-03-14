@@ -1,0 +1,71 @@
+@page
+@model StudentCourses.Pages.Students.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Student</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Student.StudentID" />
+            <div class="form-group">
+                <label asp-for="Student.FirstName" class="control-label"></label>
+                <input asp-for="Student.FirstName" class="form-control" />
+                <span asp-validation-for="Student.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Student.LastName" class="control-label"></label>
+                <input asp-for="Student.LastName" class="form-control" />
+                <span asp-validation-for="Student.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <table>
+                        <tr>
+                            @* loop through all courses and display them with a checkbox.
+                               If the student is in the course, mark it as checked
+                            *@
+                            @{
+                                var check = "";
+                                int cnt = 0;
+                                foreach(var course in Model.Courses)
+                                {
+                                    if (cnt % 3 == 0)
+                                    {
+                                        @:</tr><tr>
+                                    }
+                                    check = "";
+                                    if (Model.Student.StudentCourses.Any(sc => sc.CourseID == course.CourseID))
+                                    {
+                                        check = "checked";
+                                    }
+                                    <td>
+                                        <input type="checkbox" name="selectedCourses" value="@course.CourseID" @check /> @course.Description
+                                    </td>
+                                    cnt++;
+                                }
+                                @:</tr>
+                            }
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

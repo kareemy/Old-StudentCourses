@@ -1,0 +1,63 @@
+@page
+@model StudentCourses.Pages.Students.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Student</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Student.FirstName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Student.FirstName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Student.LastName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Student.LastName)
+        </dd>
+        <ul>       
+                @* List each course the student is enrolled in
+                   Display an HTML button next to each course to Drop the course.
+                   In order to drop a course, we must know the courseID. Use the hidden input type for that
+                   The button uses asp-page-handler to call OnPostDeleteCourse() method
+                *@
+                @foreach(var course in Model.Student.StudentCourses)
+                {
+                    <form method="post">
+                        <input type="hidden" asp-for="CourseIdToDelete" value="@course.Course.CourseID" />
+                        <li>
+                            @course.Course.Description <input type="submit" Value="Drop" class="btn btn-danger btn-sm my-1" asp-page-handler="DeleteCourse" asp-route-id="@Model.Student.StudentID">
+                        </li>
+                    </form>
+                }
+        </ul>
+    </dl>
+    <div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <input type="hidden" asp-for="Student.StudentID" />
+            <div class="form-group">
+                <select asp-items="Model.CoursesDropDown" asp-for="CourseIdToAdd" class="form-control">
+                    <option value="">--Select Course to Add--</option>
+                </select>
+                <span asp-validation-for="CourseIdToAdd" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add Course" class="btn btn-primary" asp-page-handler="" asp-route-id="@Model.Student.StudentID"/>
+            </div>
+        </form>
+    </div>
+    </div>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Student.StudentID">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>
