@@ -41,7 +41,7 @@
                                         @:</tr><tr>
                                     }
                                     check = "";
-                                    if (Model.Student.StudentCourses.Any(sc => sc.CourseID == course.CourseID))
+                                    if (Model.Student.StudentCourses!.Any(sc => sc.CourseID == course.CourseID))
                                     {
                                         check = "checked";
                                     }

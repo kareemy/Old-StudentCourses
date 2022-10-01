@@ -7,14 +7,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using StudentCourses.Models;
-using Microsoft.Extensions.Logging;
 
 namespace StudentCourses.Pages.Students
 {
     public class EditModel : PageModel
     {
+        private readonly ILogger<EditModel> _logger;
         private readonly StudentCourses.Models.Context _context;
-        private readonly ILogger _logger;
 
         public EditModel(StudentCourses.Models.Context context, ILogger<EditModel> logger)
         {
@@ -23,30 +22,30 @@ namespace StudentCourses.Pages.Students
         }
 
         [BindProperty]
-        public Student Student { get; set; } // This is the specific Student you are editing
-        public List<Course> Courses {get; set;} // This is a list of all courses
+        public Student Student { get; set; } = default!; // This is the specific Student you are editing
+        public List<Course> Courses {get; set;} = default!; // This is a list of all courses
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Student == null)
             {
                 return NotFound();
             }
 
             // Bring in related data using Include and ThenInclude
-            Student = await _context.Student.Include(s => s.StudentCourses).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == id);
+            var student =  await _context.Student.Include(s => s.StudentCourses!).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == id);
             // Get a list of all courses. This list is used to make the checkboxes
             Courses = _context.Course.ToList();
-
-            if (Student == null)
+            if (student == null)
             {
                 return NotFound();
             }
+            Student = student;
             return Page();
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://aka.ms/RazorPagesCRUD.
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int[] selectedCourses)
         {
             if (!ModelState.IsValid)
@@ -56,12 +55,15 @@ namespace StudentCourses.Pages.Students
 
             //_context.Attach(Student).State = EntityState.Modified;
             // Find the student you want to update and update all their "normal properties" (FirstName and LastName)
-            var studentToUpdate = await _context.Student.Include(s => s.StudentCourses).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == Student.StudentID);
-            studentToUpdate.FirstName = Student.FirstName;
-            studentToUpdate.LastName = Student.LastName;
-
-            // Separate method to update the courses because it can get complex
-            UpdateStudentCourses(selectedCourses, studentToUpdate);
+            var studentToUpdate = await _context.Student.Include(s => s.StudentCourses!).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == Student.StudentID);
+            if (studentToUpdate != null) 
+            {
+                studentToUpdate.FirstName = Student.FirstName;
+                studentToUpdate.LastName = Student.LastName;
+                
+                // Separate method to update the courses because it can get complex
+                UpdateStudentCourses(selectedCourses, studentToUpdate);
+            }
 
             try
             {
@@ -84,7 +86,7 @@ namespace StudentCourses.Pages.Students
 
         private bool StudentExists(int id)
         {
-            return _context.Student.Any(e => e.StudentID == id);
+          return _context.Student.Any(e => e.StudentID == id);
         }
 
         private void UpdateStudentCourses(int[] selectedCourses, Student studentToUpdate)
@@ -95,7 +97,7 @@ namespace StudentCourses.Pages.Students
                 return;
             }
 
-            List<int> currentCourses = studentToUpdate.StudentCourses.Select(c => c.CourseID).ToList();
+            List<int> currentCourses = studentToUpdate.StudentCourses!.Select(c => c.CourseID).ToList();
             List<int> selectedCoursesList = selectedCourses.ToList();
 
             foreach (var course in _context.Course)
@@ -105,7 +107,7 @@ namespace StudentCourses.Pages.Students
                     if (!currentCourses.Contains(course.CourseID))
                     {
                         // Add course here
-                        studentToUpdate.StudentCourses.Add(
+                        studentToUpdate.StudentCourses!.Add(
                             new StudentCourse { StudentID = studentToUpdate.StudentID, CourseID = course.CourseID }
                         );
                         _logger.LogWarning($"Student {studentToUpdate.FirstName} {studentToUpdate.LastName} ({studentToUpdate.StudentID}) - ADD {course.CourseID} {course.Description}");
@@ -116,7 +118,7 @@ namespace StudentCourses.Pages.Students
                     if (currentCourses.Contains(course.CourseID))
                     {
                         // Remove course here
-                        StudentCourse courseToRemove = studentToUpdate.StudentCourses.SingleOrDefault(s => s.CourseID == course.CourseID);
+                        StudentCourse courseToRemove = studentToUpdate.StudentCourses!.SingleOrDefault(s => s.CourseID == course.CourseID)!;
                         _context.Remove(courseToRemove);
                         _logger.LogWarning($"Student {studentToUpdate.FirstName} {studentToUpdate.LastName} ({studentToUpdate.StudentID}) - DROP {course.CourseID} {course.Description}");
                     }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
+
 namespace StudentCourses.Migrations
 {
     public partial class InitialCreate : Migration
@@ -10,9 +12,9 @@ namespace StudentCourses.Migrations
                 name: "Course",
                 columns: table => new
                 {
-                    CourseID = table.Column<int>(nullable: false)
+                    CourseID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Description = table.Column<string>(nullable: false)
+                    Description = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -23,10 +25,10 @@ namespace StudentCourses.Migrations
                 name: "Student",
                 columns: table => new
                 {
-                    StudentID = table.Column<int>(nullable: false)
+                    StudentID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FirstName = table.Column<string>(nullable: false),
-                    LastName = table.Column<string>(nullable: false)
+                    FirstName = table.Column<string>(type: "TEXT", nullable: false),
+                    LastName = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -37,8 +39,8 @@ namespace StudentCourses.Migrations
                 name: "StudentCourse",
                 columns: table => new
                 {
-                    CourseID = table.Column<int>(nullable: false),
-                    StudentID = table.Column<int>(nullable: false)
+                    CourseID = table.Column<int>(type: "INTEGER", nullable: false),
+                    StudentID = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

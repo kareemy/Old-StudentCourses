@@ -19,35 +19,39 @@ namespace StudentCourses.Pages.Students
         }
 
         [BindProperty]
-        public Student Student { get; set; }
+      public Student Student { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Student == null)
             {
                 return NotFound();
             }
 
-            Student = await _context.Student.FirstOrDefaultAsync(m => m.StudentID == id);
+            var student = await _context.Student.FirstOrDefaultAsync(m => m.StudentID == id);
 
-            if (Student == null)
+            if (student == null)
             {
                 return NotFound();
+            }
+            else 
+            {
+                Student = student;
             }
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Student == null)
             {
                 return NotFound();
             }
+            var student = await _context.Student.FindAsync(id);
 
-            Student = await _context.Student.FindAsync(id);
-
-            if (Student != null)
+            if (student != null)
             {
+                Student = student;
                 _context.Student.Remove(Student);
                 await _context.SaveChangesAsync();
             }

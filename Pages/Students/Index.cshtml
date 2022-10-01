@@ -32,18 +32,18 @@
                 @Html.DisplayFor(modelItem => item.LastName)
             </td>
             <td>
-                @*  course represents a StudentCourse record
-                    Each course has a Course navigation property which is the actual Course
-                    The Course has a description. So you do course.Course.Description *@
-                @foreach (var course in item.StudentCourses)
-                {
-                    @course.Course.Description <br />
-                }
-                @if (item.StudentCourses.Count == 0)
-                {
-                    @:Not Enrolled
-                }
-            </td>            
+            @*  course represents a StudentCourse record
+                Each course has a Course navigation property which is the actual Course
+                The Course has a description. So you do course.Course.Description *@
+            @foreach (var course in item.StudentCourses!)
+            {
+                @course.Course.Description <br />
+            }
+            @if (item.StudentCourses.Count == 0)
+            {
+                @:Not Enrolled
+            }                  
+            </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.StudentID">Edit</a> |
                 <a asp-page="./Details" asp-route-id="@item.StudentID">Details</a> |

@@ -24,13 +24,13 @@ namespace StudentCourses.Pages.Students
         }
 
         [BindProperty]
-        public Student Student { get; set; }
+        public Student Student { get; set; } = default!;
+        
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://aka.ms/RazorPagesCRUD.
+        // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+          if (!ModelState.IsValid)
             {
                 return Page();
             }

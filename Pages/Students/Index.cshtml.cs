@@ -18,12 +18,14 @@ namespace StudentCourses.Pages.Students
             _context = context;
         }
 
-        public IList<Student> Student { get;set; }
+        public IList<Student> Student { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
-            // Bring in related data. This is Many-to-Many so Include=>StudentCourses ThenInclude=>Course
-            Student = await _context.Student.Include(s => s.StudentCourses).ThenInclude(sc => sc.Course).ToListAsync();
+            if (_context.Student != null)
+            {
+                Student = await _context.Student.Include(s => s.StudentCourses!).ThenInclude(sc => sc.Course).ToListAsync();
+            }
         }
     }
 }

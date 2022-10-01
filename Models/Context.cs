@@ -13,8 +13,8 @@ namespace StudentCourses.Models
             modelBuilder.Entity<StudentCourse>().HasKey(s => new {s.CourseID, s.StudentID});
         }
 
-        public DbSet<Course> Course {get; set;}
-        public DbSet<Student> Student {get; set;}
-        public DbSet<StudentCourse> StudentCourse {get; set;}
+        public DbSet<Course> Course {get; set;} = default!;
+        public DbSet<Student> Student {get; set;} = default!; 
+        public DbSet<StudentCourse> StudentCourse {get; set;} = default!;
     }
 }

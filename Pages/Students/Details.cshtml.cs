@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StudentCourses.Models;
-using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -19,36 +18,38 @@ namespace StudentCourses.Pages.Students
 
         public DetailsModel(StudentCourses.Models.Context context, ILogger<DetailsModel> logger)
         {
-            _logger = logger;
             _context = context;
+            _logger = logger;
         }
 
-        public Student Student { get; set; }
+      public Student Student { get; set; } = default!;
 
-        [BindProperty]
-        public int CourseIdToDelete {get; set;}
+      [BindProperty]
+      public int CourseIdToDelete {get; set;}
 
         [BindProperty]
         [Display(Name = "Course")]
         public int CourseIdToAdd {get; set;}
-        public List<Course> AllCourses {get; set;}
-        public SelectList CoursesDropDown {get; set;}
+        public List<Course> AllCourses {get; set;} = default!;
+        public SelectList CoursesDropDown {get; set;} = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Student == null)
             {
                 return NotFound();
             }
 
-            // Bring in related data with .Include and .ThenInclude
-            Student = await _context.Student.Include(s => s.StudentCourses).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == id);
+            var student = await _context.Student.Include(s => s.StudentCourses!).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == id);
             AllCourses = await _context.Course.ToListAsync();
             CoursesDropDown = new SelectList(AllCourses, "CourseID", "Description");
-
-            if (Student == null)
+            if (student == null)
             {
                 return NotFound();
+            }
+            else 
+            {
+                Student = student;
             }
             return Page();
         }
@@ -61,16 +62,18 @@ namespace StudentCourses.Pages.Students
                 return NotFound();
             }
 
-            Student = await _context.Student.Include(s => s.StudentCourses).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == id);
-            //AllCourses = await _context.Course.ToListAsync();
-            //CoursesDropDown = new SelectList(AllCourses, "CourseID", "Description");
+            var student = await _context.Student.Include(s => s.StudentCourses!).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == id);
             
-            if (Student == null)
+            if (student == null)
             {
                 return NotFound();
             }
+            else
+            {
+                Student = student;
+            }
 
-            StudentCourse courseToDrop = _context.StudentCourse.Find(CourseIdToDelete, id.Value);
+            StudentCourse courseToDrop = _context.StudentCourse.Find(CourseIdToDelete, id.Value)!;
 
             if (courseToDrop != null)
             {
@@ -98,13 +101,17 @@ namespace StudentCourses.Pages.Students
                 return NotFound();
             }
 
-            Student = await _context.Student.Include(s => s.StudentCourses).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == id);            
+            var student = await _context.Student.Include(s => s.StudentCourses!).ThenInclude(sc => sc.Course).FirstOrDefaultAsync(m => m.StudentID == id);            
             AllCourses = await _context.Course.ToListAsync();
             CoursesDropDown = new SelectList(AllCourses, "CourseID", "Description");
 
-            if (Student == null)
+            if (student == null)
             {
                 return NotFound();
+            }
+            else
+            {
+                Student = student;
             }
 
             if (!_context.StudentCourse.Any(sc => sc.CourseID == CourseIdToAdd && sc.StudentID == id.Value))
@@ -118,8 +125,6 @@ namespace StudentCourses.Pages.Students
                 _logger.LogWarning("Student already enrolled in the course");
             }
 
-            // Best practice is that OnPost should redirect. This clears the form data.
-            // FIXME: Can we just populate the routeValues from what is already there?
             return RedirectToPage(new {id = id});
         }
     }
